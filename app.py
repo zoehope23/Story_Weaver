@@ -162,8 +162,8 @@ def text_to_speech(api_key, text):
             "responseModalities": ["AUDIO"],
             "speechConfig": {
                 "voiceConfig": {
-                    # Choosing a gentle, easy-going voice for a bedtime story
-                    "prebuiltVoiceConfig": {"voiceName": "Zubenelgenubi"}
+                    # Changing the voice to 'Vindemiatrix' for a gentle, calming tone
+                    "prebuiltVoiceConfig": {"voiceName": "Vindemiatrix"}
                 }
             }
         },
