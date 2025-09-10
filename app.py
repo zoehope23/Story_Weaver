@@ -163,7 +163,7 @@ def text_to_speech(api_key, text):
             "speechConfig": {
                 "voiceConfig": {
                     # Changing the voice to 'Vindemiatrix' for a gentle, calming tone
-                    "prebuiltVoiceConfig": {"voiceName": "Vindemiatrix"}
+                    "prebuiltVoiceConfig": {"voiceName": "Puck"}
                 }
             }
         },
