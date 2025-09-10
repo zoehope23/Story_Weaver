@@ -13,12 +13,13 @@ if 'is_listening' not in st.session_state:
     st.session_state.is_listening = False
 if 'voice_input' not in st.session_state:
     st.session_state.voice_input = ""
+if 'api_key' not in st.session_state:
+    st.session_state.api_key = ""
 
-# Placeholders for the API key and app ID, which are automatically provided
+# Placeholders for the app ID, which are automatically provided
 __app_id = 'default-app-id'
 __firebase_config = '{}'
 __initial_auth_token = None
-api_key = "" # Leave this as-is, it will be automatically filled by the environment
 
 # --- CSS for a cozy, bedtime story theme ---
 st.markdown("""
@@ -117,7 +118,7 @@ def pcm_to_wav(pcm_data, sample_rate=16000, channels=1, bits_per_sample=16):
     return wav_file
 
 # --- Function to generate the story using the Gemini API ---
-def generate_story(genre, characters, age_group, tips):
+def generate_story(api_key, genre, characters, age_group, tips):
     """Generates a story based on user input using the Gemini LLM."""
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={api_key}"
     
@@ -152,7 +153,7 @@ def generate_story(genre, characters, age_group, tips):
         st.session_state.story = ""
 
 # --- Function to convert story text to speech using the Gemini TTS API ---
-def text_to_speech(text):
+def text_to_speech(api_key, text):
     """Converts text to audio and plays it."""
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key={api_key}"
     payload = {
@@ -197,8 +198,15 @@ st.markdown("""
 <h2 class='main-subheader'>Let's create a magical story together!</h2>
 """, unsafe_allow_html=True)
 
-st.write("Enter the details below to generate a unique story.")
+# API Key input section
+st.subheader("1. Enter your Gemini API Key")
+api_key_input = st.text_input("Find your key at `https://aistudio.google.com/app/apikey`", type="password")
 
+if api_key_input:
+    st.session_state.api_key = api_key_input
+    st.success("API Key saved! You can now create stories.")
+
+st.subheader("2. Story Details")
 # Input fields
 characters = st.text_input("Characters (e.g., a sleepy bear, a talking star, a brave little mouse)", "")
 genre = st.text_input("Genre (e.g., fantasy, adventure, a story about friendship)", "")
@@ -250,11 +258,13 @@ with st.expander("Additional Tips & Voice Input"):
 
 # Main action button
 if st.button("Create Story"):
-    if not characters and not genre:
+    if not st.session_state.api_key:
+        st.error("Please enter your Gemini API Key to continue.")
+    elif not characters and not genre:
         st.warning("Please enter at least characters and genre to create the story.")
     else:
         with st.spinner("Tucking the story into bed..."):
-            generate_story(genre, characters, age_group, tips)
+            generate_story(st.session_state.api_key, genre, characters, age_group, tips)
 
 # Display the story and speaker button if a story exists
 if st.session_state.story:
@@ -272,5 +282,5 @@ if st.session_state.story:
     
     st.markdown("<div class='speaker-button-container'>", unsafe_allow_html=True)
     if st.button("Tell me the story", key="play_audio"):
-        text_to_speech(st.session_state.story)
+        text_to_speech(st.session_state.api_key, st.session_state.story)
     st.markdown("</div>", unsafe_allow_html=True)
